@@ -1,5 +1,5 @@
 
-# kubernetes-project-using-EKS
+# Kubernetes-project-using-EKS
 
 ## Deploying an application on AWS EKS
 
