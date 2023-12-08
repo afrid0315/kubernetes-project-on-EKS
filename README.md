@@ -125,12 +125,16 @@ Here, we can create fargate worker nodes using AWS CLI commands.
      ```
 It will take some time and will create cluster. You can check in AWS console > AWS EKS > Cluster. All the details will be available in cluster. But, if you have create without EKS we have to create everything manually even to check details.
 
+![pic 1](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/66e37ba2-5fb6-4c96-bfd5-f22a53fbc5db)
+
 - And Enter the following command to update the kubeconfig file for accessing an Amazon EKS cluster:
      ```
      aws eks update-kubeconfig --name demo-cluster --region us-east-1
      ```
 
 By running this command, you simplify the process of interacting with your EKS cluster using standard Kubernetes command-line tools like 'kubectl'.
+
+![pic 2](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/99c1d2e9-05a7-4840-8811-b017561e1594)
 
 ### 2.2 Creating Fargate Profile on EKS Cluster
 
@@ -164,6 +168,8 @@ This github path taken from official EKS examples of game-2048 and by using 'kub
      kubectl get ingress -n game-2048
      ```
 Here, it is having ingress without address in output because ingress controller not at created. For external world we use ingress. We need ALB (Application Load Balancer) ingress controller.
+
+![pic 3](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/999009d0-6f1b-49b8-bb12-7f8f37b97396)
 
 ## Creating Ingress Controller
 
@@ -205,6 +211,7 @@ Create IAM Role
   --attach-policy-arn=arn:aws:iam::<your-aws-account-id>:policy/AWSLoadBalancerControllerIAMPolicy \
   --approve
      ```
+![pic 4](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/07129e32-87de-4d0e-abb3-0c856d62a631)
 
 ### 3.3 Install Helm And Deploy Using Helm
 
@@ -242,11 +249,16 @@ Install
   --set region=<region> \
   --set vpcId=<your-vpc-id>
      ```
+![pic 5](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/eef0e8a1-82a4-4cfb-a2af-3ad319b1c676)
+
 Verify that the deployments are running.
 - Enter the following command:
      ```
      kubectl get deployment -n kube-system aws-load-balancer-controller
      ```
+## Finally!! You are able to see below output:
+
+![output](https://github.com/afrid0315/kubernetes-project-on-EKS/assets/126462435/23632d2a-40e0-426c-8fcd-2a6168f6644a)
 
 - Enter the following command to delete the cluster:
      ```
