@@ -34,6 +34,11 @@ Ecosystem and Community: Being a managed service, EKS benefits from continuous i
    - 2.1 [Creating EKS Cluster via AWS CLI using Fargate](#creating-eks-cluster-via-aws-cli-using-fargate)
    - 2.2 [Creating Fargate Profile on EKS Cluster](#creating-fargate-profile-on-eks-cluster)
    - 2.3 [Creating Deployment, Service, Ingress, Namespace](#creating-deployment,-service,-ingress,-namespace)
+
+3. [Creating Ingress Controller](#creating-ingress-controller)
+   - 3.1 [Configuring IAM OIDC Provider](#configuring-iam-oidc-provider)
+   - 3.2 [Setup ALB Add On and Create IAM Policy, Role](#setup-alb-add-on-and-create-iam-policy,-role)
+   - 3.3 [Install Helm And Deploy Using Helm](#install-helm-and-deploy-using-helm)
 ## Setting up your AWS Environment for EKS
 
 Sure! Let's go into detail for each subsection:
@@ -158,6 +163,94 @@ This github path taken from official EKS examples of game-2048 and by using 'kub
      ```
      kubectl get ingress -n game-2048
      ```
+Here, it is having ingress without address in output because ingress controller not at created. For external world we use ingress. We need ALB (Application Load Balancer) ingress controller.
 
+## Creating Ingress Controller
+
+### 3.1 Configuring IAM OIDC Provider
+
+To create ingress controller we need prerequisite which is IAM OIDC Provider. Kubernetes pods to talk with AWS Services we need to have IAM to be integrated.
+
+So, we need to create OIDC IAM provider
+- Enter the following command to check ingress:
+     ```
+     eksctl utils associate-iam-oidc-provider --cluster $cluster_name --approve
+     ```
+IAM Authentication to access AWS services will be approved
+### 3.2 Setup ALB Add On and Create IAM Policy, Role
+
+- Enter the following command:
+     ```
+     curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
+     ```
+
+Create IAM Policy
+
+- Enter the following command:
+     ```
+     aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+     ```
+
+Create IAM Role
+
+- Enter the following command:
+     ```
+     eksctl create iamserviceaccount \
+  --cluster=<your-cluster-name> \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::<your-aws-account-id>:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+     ```
+
+### 3.3 Install Helm And Deploy Using Helm
+
+**Download and Installing Helm**:
+   - Before installing helm we need to install chocolatey prerequisite for helm. it may vary to other flavours.
+   - Download and Install Helm on your local machine from Helm official page.
+   - Open a terminal or command prompt and run the following command:
+     ```
+     helm
+     ```
+   - Check helm installed or not.
+
+Helm – Helm is a Kubernetes package manager that facilitates easy deployment and management of applications using pre-configured charts.
+
+**Deploy ALB controller**:
+
+Add helm repo
+- Enter the following command:
+     ```
+     helm repo add eks https://aws.github.io/eks-charts
+     ```
+Update the repo
+- Enter the following command:
+     ```
+     helm repo update eks
+     ```
+Install
+- Enter the following command:
+     ```
+     helm install aws-load-balancer-controller eks/aws-load-balancer-controller \            
+  -n kube-system \
+  --set clusterName=<your-cluster-name> \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=<region> \
+  --set vpcId=<your-vpc-id>
+     ```
+Verify that the deployments are running.
+- Enter the following command:
+     ```
+     kubectl get deployment -n kube-system aws-load-balancer-controller
+     ```
+
+- Enter the following command to delete the cluster:
+     ```
+     eksctl delete cluster --name demo-cluster --region us-east-1
+     ```
 
 
