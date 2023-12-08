@@ -1,1 +1,1 @@
-# kubernetes-project-on-EKS
+# kubernetes-project-using-EKS
