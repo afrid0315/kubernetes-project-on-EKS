@@ -32,7 +32,8 @@ Ecosystem and Community: Being a managed service, EKS benefits from continuous i
 
 2. [Launching your First EKS Cluster](#launching-your-first-eks-cluster)
    - 2.1 [Creating EKS Cluster via AWS CLI using Fargate](#creating-eks-cluster-via-aws-cli-using-fargate)
-
+   - 2.2 [Creating Fargate Profile on EKS Cluster](#creating-fargate-profile-on-eks-cluster)
+   - 2.3 [Creating Deployment, Service, Ingress, Namespace](#creating-deployment,-service,-ingress,-namespace)
 ## Setting up your AWS Environment for EKS
 
 Sure! Let's go into detail for each subsection:
@@ -117,7 +118,46 @@ Here, we can create fargate worker nodes using AWS CLI commands.
      ```
      eksctl create cluster --name demo-cluster --region us-east-1 --fargate
      ```
-
 It will take some time and will create cluster. You can check in AWS console > AWS EKS > Cluster. All the details will be available in cluster. But, if you have create without EKS we have to create everything manually even to check details.
+
+- And Enter the following command to update the kubeconfig file for accessing an Amazon EKS cluster:
+     ```
+     aws eks update-kubeconfig --name demo-cluster --region us-east-1
+     ```
+
+By running this command, you simplify the process of interacting with your EKS cluster using standard Kubernetes command-line tools like 'kubectl'.
+
+### 2.2 Creating Fargate Profile on EKS Cluster
+
+In AWS EKS console, if we go to created clusters section > compute > go to bottom > you will find Fargate Profiles > there you can see default, kube-system of namespaces.
+
+We have to add our custom fargate profile without using default profiles.
+- Enter the following command to add our custom fargate profile:
+     ```
+     eksctl create fargateprofile --cluster demo-cluster --region us-east-1 --name alb-sample-app --namespace game-2048
+     ```
+Reload the AWS EKS Console and check fargate profile, alb-sample-app named namespace will be created.
+
+### 2.3 Creating Deployment, Service, Ingress, Namespace
+
+- Enter the following command:
+     ```
+     kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/examples/2048/2048_full.yaml
+     ```
+This github path taken from official EKS examples of game-2048 and by using 'kubectl apply -f' we are going to create deployment, service and ingress.
+
+- Enter the following command to check pods:
+     ```
+     kubectl get pods -n game-2048
+     ```
+- Enter the following command to check service:
+     ```
+     kubectl get svc -n game-2048
+     ```
+- Enter the following command to check ingress:
+     ```
+     kubectl get ingress -n game-2048
+     ```
+
 
 
